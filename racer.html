@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Racing Game</title>
+    <style>
+        html, body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+        }
+
+        .race-container {
+            width: 90vw; 
+            max-width: 800px; 
+            height: 60vh; 
+            max-height: 400px; 
+            min-width: 300px;
+            min-height: 200px; 
+            border: 2px solid #333;
+            border-radius: 10px;
+            background-color: #ddd;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .racer {
+            position: absolute;
+            font-size: 40px; 
+            height: 40px;
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #racer-1 { top: 5%; }
+        #racer-2 { top: 16.43%; }
+        #racer-3 { top: 27.86%; }
+        #racer-4 { top: 39.29%; }
+        #racer-5 { top: 50.71%; }
+        #racer-6 { top: 62.14%; }
+        #racer-7 { top: 73.57%; }
+        #racer-8 { top: 85%; }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        #reset-button {
+            margin-left: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .racer {
+                font-size: 20px; /* Scale down size for smaller screens */
+                height: 20px;
+                width: 20px;
+            }
+
+            button {
+                font-size: 14px;
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Racing Game</h1>
+    <div class="race-container" id="race-container">
+        <div class="racer" id="racer-1" style="left: 0;">🐥</div>
+        <div class="racer" id="racer-2" style="left: 0;">🐶</div>
+        <div class="racer" id="racer-3" style="left: 0;">🐺</div>
+        <div class="racer" id="racer-4" style="left: 0;">🐼</div>
+        <div class="racer" id="racer-5" style="left: 0;">🐨</div>
+        <div class="racer" id="racer-6" style="left: 0;">😺</div>
+        <div class="racer" id="racer-7" style="left: 0;">🦊</div>
+        <div class="racer" id="racer-8" style="left: 0;">🐰</div>
+    </div>
+    <button onclick="startRace()">Start Race</button>
+    <button id="reset-button" onclick="resetRace()">Reset</button>
+    <p id="result">Click "Start Race" to begin!</p>
+
+    <script>
+        let raceInProgress = false;
+        let raceInterval;
+
+        function startRace() {
+            if (raceInProgress) return; 
+
+            const raceContainer = document.getElementById('race-container');
+            const racers = document.querySelectorAll('.racer');
+            let winnerDeclared = false;
+
+            racers.forEach(racer => {
+                racer.style.left = '0px';
+                racer.dataset.finished = 'false'; 
+            });
+
+            const finishLine = raceContainer.clientWidth; 
+            const racerWidth = parseInt(getComputedStyle(racers[0]).width); // Width of a racer
+
+            raceInProgress = true;
+
+            function race() {
+                if (!winnerDeclared) { 
+                    let raceEnded = true; 
+                    racers.forEach((racer) => {
+                        const currentPosition = parseInt(racer.style.left);
+                        if (currentPosition < finishLine - racerWidth) { 
+                            raceEnded = false; 
+                            const progress = Math.random() * 10;
+                            const newPosition = Math.min(currentPosition + progress, finishLine - racerWidth);
+                            racer.style.left = `${newPosition}px`;
+                        } else if (currentPosition >= finishLine - racerWidth && racer.dataset.finished !== 'true') {
+                            racer.dataset.finished = 'true';
+                            winnerDeclared = true; 
+                            document.getElementById('result').innerText = `Winner: ${racer.innerText}`;
+                        }
+                    });
+
+                    if (raceEnded) {
+                        raceInProgress = false;
+                        document.getElementById('result').innerText += ' - Race Over!';
+                        clearInterval(raceInterval); 
+                    } else {
+                        raceInterval = setTimeout(race, 100); 
+                    }
+                }
+            }
+
+            race();
+        }
+
+        function resetRace() {
+            const racers = document.querySelectorAll('.racer');
+            racers.forEach(racer => {
+                racer.style.left = '0px'; 
+                racer.dataset.finished = 'false'; 
+            });
+            document.getElementById('result').innerText = 'Click "Start Race" to begin!';
+            raceInProgress = false; 
+            clearInterval(raceInterval); 
+        }
+    </script>
+</body>
+</html>
